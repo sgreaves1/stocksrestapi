@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const {GetAllStocks} = require('../controllers/stocksController');
 const HttpStatus = require('literal-http-status');
+const {Cashify} = require('cashify');
 
 
 router.get('/', async function (request, response) {
@@ -15,13 +16,12 @@ router.get('/', async function (request, response) {
         let totalProfit = stocks.map(stock => stock.totalProfit).reduce((a, b) => a + b);
 
 
-        let totalProfits = await convertCurrency(totalProfit, 'USD', 'EUR');
-
-        //let result = Promise.all(totalProfits)
+        const cashify = new Cashify({base: 'GBP', rates: global.rates.rates});
+        const totalProfits = cashify.convert(totalProfit, {from: 'USD', to: 'GBP'});
 
         return response.status(HttpStatus['OK']).json({
             invested,
-            totalProfit
+            totalProfits
         });
     }
     catch (err) {

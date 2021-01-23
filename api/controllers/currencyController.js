@@ -13,13 +13,12 @@ async function GetCurrencyRates() {
         let formatToday = today.toJSON().slice(0, 10);
 
         if (rates.date < formatToday) {
-            let rates = await RefreshCurrencyRates();
+            rates = await RefreshCurrencyRates();
             await StoreCurrencyRates(rates);
         }
-        return rates;
+        global.rates = rates;
     } catch (err) {
         console.log(`Failed to retrieve currency rates: ${err}`);
-        return Promise.reject(err);
     }
 }
 
@@ -37,7 +36,6 @@ async function RefreshCurrencyRates() {
     };
 
     return await axios.request(options).then(function (response) {
-        console.log(response.data);
         return response.data;
     }).catch(function (error) {
         console.error(error);
